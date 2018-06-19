@@ -48,7 +48,7 @@ f_menu i =
   'A' ->  insere_cadastro
   'B' ->  excluir_um_cadastro   
   'C' ->  imprime_cadastros   
-  'D' ->  imprime_melhor_posicao               
+  'D' ->  imprime_ranking
   otherwise -> sair i
 
 --Inserir Cadastro --
@@ -65,15 +65,17 @@ insere_cadastro =
   putStrLn "Origem: ";
   origem <- getLine;
   putStrLn "Tamanho Médio Macho: "    
-  tamanho <- getChar
+  tamanho <- getLine
+  putStrLn "Peso Médio Macho: "    
+  peso <- getLine
   putStrLn "Cor: "   
-  cor <- getChar
+  cor <- getLine
   putStrLn "Função Original: "   
-  funcao <- getChar
+  funcao <- getLine
   putStrLn "Ranking: "   
-  posicao <- getChar
+  posicao <- getLine
   putStrLn " " -- linha necessária para execução do getChar
-  let cadastro = raca ++ "," preco ++ "," origem ++ "," tamanho ++ "," peso ++ "," cor ++ "," funcao ++ "," posicao
+  let cadastro = raca ++ "," ++ preco ++ "," ++ origem ++ "," ++ tamanho ++ "," ++ peso ++ "," ++ cor ++ "," ++ funcao ++ "," ++ posicao
   appendFile "dados.csv" (cadastro ++ "\n") --insere dados no arquivo
 
 --Excluir CADASTRO
@@ -118,8 +120,19 @@ abreArquivo arquivo modo = do
 apaga_pelo_nome :: [[String]]->String->String
 apaga_pelo_nome [] nm = "\n"
 apaga_pelo_nome (x:xs) nm
- |nm == (nome x) = (apaga_pelo_nome xs nm)
+ |nm == (raca x) = (apaga_pelo_nome xs nm)
  |otherwise = (foldl1 (\a b->a++","++b) x) ++ "\n" ++ (apaga_pelo_nome xs nm)
+
+--Retorna a posicao 
+raca, preco, origem, tamanho, peso, cor, funcao, ranking :: [String] -> String
+raca (a:b:c:d:e:f:g:h:[]) = a
+preco(a:b:c:d:e:f:g:h:[]) = b
+origem(a:b:c:d:e:f:g:h:[]) = c
+tamanho(a:b:c:d:e:f:g:h:[]) = d
+peso(a:b:c:d:e:f:g:h:[]) = e
+cor(a:b:c:d:e:f:g:h:[]) = f
+funcao(a:b:c:d:e:f:g:h:[]) = g
+ranking(a:b:c:d:e:f:g:h:[]) = h
 
 -- ============================== Copiar Origem e Destino =============================
 copiar origem destino =
@@ -157,13 +170,33 @@ imprime (x:xs) = do
  putStrLn (foldl1 (\a b->a++ " " ++b) x)
  imprime xs
 
-imprime_melhor_posicao:: Pessoa->Pessoa->Pessoa
-imprime_melhor_posicao x y
- |idade(x) < idade(y) = x
- |otherwise = y
+--Funcao Auxiliar Consulta----------
+converteConteudo :: String -> IO [[String]]
+converteConteudo conteudo = return (map (explodir ',') (explodir '\n' conteudo))
+
+--Funcao auxiliar de ranking--
+imprime_ranking :: IO()
+imprime_ranking =
+ do    
+    arq <- (openFile "dados.csv" ReadMode) -- Abre o arquivo
+    conteudo <- (hGetContents arq)
+    cadastro <- (converteConteudo (conteudo))
+    imprime_ranking_aux cadastro
+    hClose arq -- Fecha arquivo
+	
+imprime_ranking_aux::IO [[String]]->String
+imprime_ranking_aux x = ranking x
+ 
+--Funcao Auxiliar
+explodir :: Eq a=> a -> [a] -> [[a]]
+explodir a [] = []
+explodir a(x:xs)
+                |(takeWhile (/=a) (x:xs)) == [] = explodir a xs
+                |x == a = (takeWhile (/=a) xs) : explodir a (dropWhile (/= a) xs)
+                |otherwise = (takeWhile (/= a)(x:xs)) : explodir a (dropWhile (/=a) (x:xs))
  
  -- Funcao sair ----------
- sair :: Char -> IO()
- sair i |i == 'I' = putStrLn "Saindo do sistema..."
-  |otherwise= putStrLn "Opcao invalida..."
+sair :: Char -> IO()
+sair i |i == 'I' = putStrLn "Saindo do sistema..."
+ |otherwise= putStrLn "Opcao invalida..."
 
