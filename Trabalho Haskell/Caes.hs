@@ -117,7 +117,8 @@ abreArquivo arquivo modo = do
  else ioError erro
 
  -- ============================================FUNCAO Auxiliar EXCLUSÃO ==============
-apaga_pelo_nome :: [[String]]->String->String
+
+  apaga_pelo_nome :: [[String]]->String->String
 apaga_pelo_nome [] nm = "\n"
 apaga_pelo_nome (x:xs) nm
  |nm == (raca x) = (apaga_pelo_nome xs nm)
@@ -125,7 +126,7 @@ apaga_pelo_nome (x:xs) nm
 
 --Retorna a posicao 
 raca, preco, origem, tamanho, peso, cor, funcao, ranking :: [String] -> String
-raca (a:b:c:d:e:f:g:h:[]) = a
+raca(a:b:c:d:e:f:g:h:[]) = a
 preco(a:b:c:d:e:f:g:h:[]) = b
 origem(a:b:c:d:e:f:g:h:[]) = c
 tamanho(a:b:c:d:e:f:g:h:[]) = d
@@ -181,12 +182,16 @@ imprime_ranking =
     arq <- (openFile "dados.csv" ReadMode) -- Abre o arquivo
     conteudo <- (hGetContents arq)
     cadastro <- (converteConteudo (conteudo))
-    imprime_ranking_aux cadastro
+    putStrLn conteudo
     hClose arq -- Fecha arquivo
 	
-imprime_ranking_aux::IO [[String]]->String
-imprime_ranking_aux x = ranking x
- 
+imprime_ranking_aux :: [[String]]->String->String
+imprime_ranking_aux [] nm = "\n"
+imprime_ranking_aux (x:xs) nm
+ |nm == (raca x) = (imprime_ranking_aux xs nm)
+ |nm == (ranking x) = (imprime_ranking_aux xs nm)
+ |otherwise = (foldl1 (\a b->a++","++b) x) ++ "\n" ++ (imprime_ranking_aux xs nm)
+
 --Funcao Auxiliar
 explodir :: Eq a=> a -> [a] -> [[a]]
 explodir a [] = []
