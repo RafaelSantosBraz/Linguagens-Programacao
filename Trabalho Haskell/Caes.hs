@@ -118,7 +118,7 @@ abreArquivo arquivo modo = do
 
  -- ============================================FUNCAO Auxiliar EXCLUSÃO ==============
 
-  apaga_pelo_nome :: [[String]]->String->String
+apaga_pelo_nome :: [[String]]->String->String
 apaga_pelo_nome [] nm = "\n"
 apaga_pelo_nome (x:xs) nm
  |nm == (raca x) = (apaga_pelo_nome xs nm)
@@ -182,15 +182,14 @@ imprime_ranking =
     arq <- (openFile "dados.csv" ReadMode) -- Abre o arquivo
     conteudo <- (hGetContents arq)
     cadastro <- (converteConteudo (conteudo))
-    putStrLn conteudo
+    imprime_ranking_aux cadastro
     hClose arq -- Fecha arquivo
-	
-imprime_ranking_aux :: [[String]]->String->String
-imprime_ranking_aux [] nm = "\n"
-imprime_ranking_aux (x:xs) nm
- |nm == (raca x) = (imprime_ranking_aux xs nm)
- |nm == (ranking x) = (imprime_ranking_aux xs nm)
- |otherwise = (foldl1 (\a b->a++","++b) x) ++ "\n" ++ (imprime_ranking_aux xs nm)
+
+imprime_ranking_aux :: [[String]] ->IO()
+imprime_ranking_aux [] = putStrLn ""
+imprime_ranking_aux (a:b) = do
+  putStrLn a
+  imprime_ranking_aux b
 
 --Funcao Auxiliar
 explodir :: Eq a=> a -> [a] -> [[a]]
