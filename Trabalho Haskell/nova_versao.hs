@@ -47,6 +47,7 @@ f_menu i =
               'B' ->  excluir_um_cadastro   
               'C' ->  imprime_cadastros   
               'D' ->  imprime_ranking
+              'E' ->  imprime_preco_minimo
               otherwise -> sair i
 
 -- cadastra um novo cachorro
@@ -188,7 +189,7 @@ imprime_ranking = do
                     imprime_ranking_aux cadastro (menor_ranking cadastro)
                     fechaArquivo arq
 
--- exibe a raça do cachorro do menor ranking
+-- exibe o cachorro do menor ranking
 imprime_ranking_aux :: [[String]] -> String -> IO()
 imprime_ranking_aux [] menor = putStrLn " "
 imprime_ranking_aux (a:b) menor
@@ -208,7 +209,37 @@ menor_ranking (a:b) = do
                         if (read(ranking a)::Int) < (read(menor)::Int)
                         then ranking a
                         else menor
-  
+
+-- verifica qual é o cachorro com menor preço mínimo      
+imprime_preco_minimo :: IO()
+imprime_preco_minimo = do    
+                        arq <- (openFile "dados.csv" ReadMode)
+                        conteudo <- (hGetContents arq)
+                        cadastro <- (converteConteudo (conteudo))
+                        imprime_preco_minimo_aux cadastro (menor_preco_minimo cadastro)
+                        fechaArquivo arq
+
+-- exibe o cachorro que possui o menor preço mínimo  
+imprime_preco_minimo_aux :: [[String]] -> String -> IO()
+imprime_preco_minimo_aux [] menor = putStrLn " "
+imprime_preco_minimo_aux (a:b) menor
+                              |(read(preco a)::Int) <= (read(menor)::Int) = do
+                                                                                {
+                                                                                putStrLn(foldl1 (\a b->a++" "++b) a);
+                                                                                imprime_preco_minimo_aux b menor;
+                                                                                }
+                              |otherwise = imprime_preco_minimo_aux b menor
+
+-- retorna qual o menor preço mínimo no conteúdo passado
+menor_preco_minimo :: [[String]] -> String
+menor_preco_minimo [] = "10000"
+menor_preco_minimo (a:b) = do
+                        -- tive que criar uma variável auxiliar para cada execução, senão seria exponencial
+                        let menor = menor_preco_minimo b
+                        if (read(preco a)::Int) < (read(menor)::Int)
+                        then preco a
+                        else menor
+
 -- sai do programa
 sair :: Char -> IO()
 sair i
