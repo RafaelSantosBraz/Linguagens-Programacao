@@ -202,10 +202,13 @@ imprime_ranking_aux (a:b) menor
 -- retorna qual o menor ranking no conteúdo passado
 menor_ranking :: [[String]] -> String
 menor_ranking [] = "1000"
-menor_ranking (a:b) 
-                  |(read(ranking a)::Int) < (read(menor_ranking b)::Int) = ranking a
-                  |otherwise = menor_ranking b
- 
+menor_ranking (a:b) = do
+                        -- tive que criar uma variável auxiliar para cada execução, senão seria exponencial
+                        let menor = menor_ranking b
+                        if (read(ranking a)::Int) < (read(menor)::Int)
+                        then ranking a
+                        else menor
+  
 -- sai do programa
 sair :: Char -> IO()
 sair i
