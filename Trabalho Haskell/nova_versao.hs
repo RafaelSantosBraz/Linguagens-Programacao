@@ -48,6 +48,7 @@ f_menu i =
               'C' ->  imprime_cadastros   
               'D' ->  imprime_ranking
               'E' ->  imprime_preco_minimo
+              'F' ->  imprime_media_preco
               otherwise -> sair i
 
 -- cadastra um novo cachorro
@@ -239,6 +240,25 @@ menor_preco_minimo (a:b) = do
                         if (read(preco a)::Int) < (read(menor)::Int)
                         then preco a
                         else menor
+
+-- verifica qual é a média dos preços mínimos
+imprime_media_preco :: IO()
+imprime_media_preco = do
+                        arquivo <- abreArquivo "dados.csv" ReadMode
+                        conteudo <- (hGetContents arquivo)
+                        cadastro <- (converteConteudo (conteudo))
+                        putStrLn(show (media_precos cadastro))
+                        fechaArquivo arquivo
+
+-- faz a divisão dos preços cadastrados
+media_precos :: [[String]] -> Float
+media_precos [] = 0
+media_precos x = (soma_precos x) / fromIntegral(length x)
+
+-- soma todos os preços mínimos
+soma_precos :: [[String]] -> Float
+soma_precos [] = 0
+soma_precos (x:xs) = (read(preco x)::Float) + (soma_precos xs)
 
 -- sai do programa
 sair :: Char -> IO()
