@@ -49,7 +49,14 @@ f_menu i =
               'D' ->  imprime_ranking
               'E' ->  imprime_preco_minimo
               'F' ->  imprime_media_preco
+              'G' ->  imprime_por_origem
               otherwise -> sair i
+
+-- sair do programa
+sair :: Char -> IO()
+sair i
+      |i == 'I' = putStrLn "Saindo do sistema..."
+      |otherwise= putStrLn "Opcao invalida..."
 
 -- cadastra um novo cachorro
 insere_cadastro :: IO()
@@ -260,8 +267,34 @@ soma_precos :: [[String]] -> Float
 soma_precos [] = 0
 soma_precos (x:xs) = (read(preco x)::Float) + (soma_precos xs)
 
--- sai do programa
-sair :: Char -> IO()
-sair i
-      |i == 'I' = putStrLn "Saindo do sistema..."
-      |otherwise= putStrLn "Opcao invalida..."
+-- exibe cachorro por origem
+imprime_por_origem :: IO()
+imprime_por_origem = do
+                      -- ignora o enter da função anterior
+                      lixo <- getLine
+                      putStr ""
+                      putStr "Digite a origem do cachorro: "
+                      origem <- getLine
+                      -- faz uma busca no cadastro a origem informada
+                      buscageral filtrar_origem origem
+
+buscageral :: ([[String]] -> a -> IO b) -> a -> IO()
+buscageral funcao filtro = do
+                            putStrLn " "
+                            putStrLn "-------------------------------------------------------------"
+                            arquivo <- abreArquivo "dados.csv" ReadMode
+                            conteudo <- (hGetContents arquivo)
+                            cadastro <- (converteConteudo (conteudo))
+                            -- usa o recurso de passagem de função por parâmetro para executar o correto
+                            funcao cadastro filtro
+                            fechaArquivo arquivo
+                            putStrLn "-------------------------------------------------------------"
+
+-- função-parâmetro para encontrar os cadastros da referida origem
+filtrar_origem :: [[String]] -> String -> IO()
+filtrar_origem [] nm = putStrLn ""
+filtrar_origem (x:xs) nm
+                      |(origem x) == nm = do
+                                            putStrLn(foldl1 (\a b->a++" "++b) x)
+                                            filtrar_origem xs nm
+                      |otherwise = filtrar_origem xs nm
