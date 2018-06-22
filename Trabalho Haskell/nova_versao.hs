@@ -179,32 +179,35 @@ imprime (x:xs) = do
                   putStrLn (foldl1 (\a b->a++ " " ++b) x)
                   imprime xs
 
---Funcao auxiliar de ranking--
+-- verifica qual é a raça com melhor Ranking
 imprime_ranking :: IO()
-imprime_ranking =
- do    
-    arq <- (openFile "dados.csv" ReadMode) -- Abre o arquivo
-    conteudo <- (hGetContents arq)
-    cadastro <- (converteConteudo (conteudo))
-    imprime_ranking_aux cadastro (menor_ranking cadastro)
-    hClose arq -- Fecha arquivo
+imprime_ranking = do    
+                    arq <- (openFile "dados.csv" ReadMode)
+                    conteudo <- (hGetContents arq)
+                    cadastro <- (converteConteudo (conteudo))
+                    imprime_ranking_aux cadastro (menor_ranking cadastro)
+                    fechaArquivo arq
 
+-- exibe a raça do cachorro do menor ranking
 imprime_ranking_aux :: [[String]] -> String -> IO()
-imprime_ranking_aux [] menor = putStrLn ""
+imprime_ranking_aux [] menor = putStrLn " "
 imprime_ranking_aux (a:b) menor
-                   |(read(ranking a)::Int) <= (read(menor)::Int) = do{
-                                putStrLn(foldl1 (\a b->a++" "++b) a);
-                                imprime_ranking_aux b menor;
-                                }
-                   |otherwise = imprime_ranking_aux b menor
+                              |(read(ranking a)::Int) <= (read(menor)::Int) = do
+                                                                                {
+                                                                                putStrLn(foldl1 (\a b->a++" "++b) a);
+                                                                                imprime_ranking_aux b menor;
+                                                                                }
+                              |otherwise = imprime_ranking_aux b menor
 
+-- retorna qual o menor ranking no conteúdo passado
 menor_ranking :: [[String]] -> String
-menor_ranking [] = "9999999"
+menor_ranking [] = "1000"
 menor_ranking (a:b) 
- |(read(ranking a)::Int) < (read(menor_ranking b)::Int) = ranking a
- |otherwise = menor_ranking b
+                  |(read(ranking a)::Int) < (read(menor_ranking b)::Int) = ranking a
+                  |otherwise = menor_ranking b
  
- -- Funcao sair ----------
+-- sai do programa
 sair :: Char -> IO()
-sair i |i == 'I' = putStrLn "Saindo do sistema..."
- |otherwise= putStrLn "Opcao invalida..."
+sair i
+      |i == 'I' = putStrLn "Saindo do sistema..."
+      |otherwise= putStrLn "Opcao invalida..."
