@@ -50,6 +50,7 @@ f_menu i =
               'E' ->  imprime_preco_minimo
               'F' ->  imprime_media_preco
               'G' ->  imprime_por_origem
+              'H' ->  imprime_entre_posicoes
               otherwise -> sair i
 
 -- sair do programa
@@ -278,6 +279,7 @@ imprime_por_origem = do
                       -- faz uma busca no cadastro a origem informada
                       buscageral filtrar_origem origem
 
+-- faz a chamada da função específica de busca com o valor informado
 buscageral :: ([[String]] -> a -> IO b) -> a -> IO()
 buscageral funcao filtro = do
                             putStrLn " "
@@ -298,3 +300,32 @@ filtrar_origem (x:xs) nm
                                             putStrLn(foldl1 (\a b->a++" "++b) x)
                                             filtrar_origem xs nm
                       |otherwise = filtrar_origem xs nm
+
+-- verifica quais as raças que estão entre as posições do Ranking
+imprime_entre_posicoes :: IO()
+imprime_entre_posicoes = do    
+                          arq <- (openFile "dados.csv" ReadMode)
+                          conteudo <- (hGetContents arq)
+                          cadastro <- (converteConteudo (conteudo))
+                          -- ignora o enter da função anterior
+                          lixo <- getLine
+                          putStr ""
+                          putStr "Digite a primeira posição (mais baixa): "
+                          p1 <- getLine
+                          putStr "Digite a segunda posição (mais alta): "
+                          p2 <- getLine
+                          putStrLn " "
+                          putStrLn "-------------------------------------------------------------"
+                          verifica_posicao cadastro p1 p2
+                          putStrLn "-------------------------------------------------------------"
+                          fechaArquivo arq
+
+-- compara as posições para imprimir na tela
+verifica_posicao :: [[String]] -> String -> String -> IO()
+verifica_posicao [] p1 p2 = putStr ""
+verifica_posicao (x:xs) p1 p2 = do
+                                  if ((read(ranking x)::Int) <= (read(p1)::Int) && (read(ranking x)::Int) >= (read(p2)::Int))
+                                  then do
+                                        putStrLn (foldl1 (\a b->a++ " " ++b) x)
+                                        verifica_posicao xs p1 p2
+                                  else verifica_posicao xs p1 p2
