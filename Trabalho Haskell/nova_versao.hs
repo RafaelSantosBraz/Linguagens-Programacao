@@ -51,6 +51,7 @@ f_menu i =
               'F' ->  imprime_media_preco
               'G' ->  imprime_por_origem
               'H' ->  imprime_entre_posicoes
+              'I' ->  imprime_por_funcao_peso
               otherwise -> sair i
 
 -- sair do programa
@@ -329,3 +330,37 @@ verifica_posicao (x:xs) p1 p2 = do
                                         putStrLn (foldl1 (\a b->a++ " " ++b) x)
                                         verifica_posicao xs p1 p2
                                   else verifica_posicao xs p1 p2
+
+-- exibe cachorro por função original e peso médio
+imprime_por_funcao_peso :: IO()
+imprime_por_funcao_peso = do
+                            -- ignora o enter da função anterior
+                            lixo <- getLine
+                            putStr ""
+                            putStr "Digite a função original do cachorro: "
+                            funcao <- getLine
+                            putStr "Digite o peso médio do cachorro: "
+                            peso <- getLine
+                            buscageral_2_argumentos filtrar_funcao_peso funcao peso
+
+-- faz a chamada da função específica de busca com os valores informados
+buscageral_2_argumentos :: ([[String]] -> a -> b -> IO c) -> a -> b -> IO()
+buscageral_2_argumentos funcao filtro1 filtro2 = do
+                                                  putStrLn " "
+                                                  putStrLn "-------------------------------------------------------------"
+                                                  arquivo <- abreArquivo "dados.csv" ReadMode
+                                                  conteudo <- (hGetContents arquivo)
+                                                  cadastro <- (converteConteudo (conteudo))
+                                                  -- usa o recurso de passagem de função por parâmetro para executar o correto
+                                                  funcao cadastro filtro1 filtro2
+                                                  fechaArquivo arquivo
+                                                  putStrLn "-------------------------------------------------------------"
+
+-- função-parâmetro para encontrar os cadastros com a função e o peso
+filtrar_funcao_peso :: [[String]] -> String -> String -> IO()
+filtrar_funcao_peso [] f p = putStrLn " "
+filtrar_funcao_peso (x:xs) f p
+                              |((funcao x) == f && (peso x) == p) = do
+                                                                      putStrLn(foldl1 (\a b->a++" "++b) x)
+                                                                      filtrar_funcao_peso xs f p
+                              |otherwise = filtrar_funcao_peso xs f p
