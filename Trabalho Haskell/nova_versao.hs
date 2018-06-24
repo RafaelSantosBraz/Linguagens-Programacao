@@ -52,7 +52,7 @@ f_menu i =
               'G' ->  imprime_por_origem
               'H' ->  imprime_entre_posicoes
               'I' ->  imprime_por_funcao_peso
-              'J' ->  imprime_por_peso
+              'J' ->  imprime_por_tamanho
               otherwise -> sair i
 
 -- sair do programa
@@ -366,7 +366,7 @@ filtrar_funcao_peso (x:xs) f p
                                                                       filtrar_funcao_peso xs f p
                               |otherwise = filtrar_funcao_peso xs f p
 
--- exibe cachorro por origem
+-- exibe cachorro por peso médio
 imprime_por_peso :: IO()
 imprime_por_peso = do
                     -- ignora o enter da função anterior
@@ -384,3 +384,22 @@ filtrar_peso (x:xs) nm
                                             putStrLn(foldl1 (\a b->a++" "++b) x)
                                             filtrar_peso xs nm
                       |otherwise = filtrar_peso xs nm
+
+-- exibe cachorro por tamanho
+imprime_por_tamanho :: IO()
+imprime_por_tamanho = do
+                        -- ignora o enter da função anterior
+                        lixo <- getLine
+                        putStr ""
+                        putStr "Digite o tamanho médio do cachorro: "
+                        tamanho <- getLine
+                        buscageral filtrar_tamanho tamanho
+
+-- função-parâmetro para encontrar os cadastros do referido peso
+filtrar_tamanho :: [[String]] -> String -> IO()
+filtrar_tamanho [] nm = putStrLn " "
+filtrar_tamanho (x:xs) nm
+                        |(tamanho x) == nm = do
+                                              putStrLn(foldl1 (\a b->a++" "++b) x)
+                                              filtrar_tamanho xs nm
+                        |otherwise = filtrar_tamanho xs nm
