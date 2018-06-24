@@ -53,6 +53,7 @@ f_menu i =
               'H' ->  imprime_entre_posicoes
               'I' ->  imprime_por_funcao_peso
               'J' ->  imprime_por_tamanho
+              'K' ->  quantidade_tamanho
               otherwise -> sair i
 
 -- sair do programa
@@ -403,3 +404,25 @@ filtrar_tamanho (x:xs) nm
                                               putStrLn(foldl1 (\a b->a++" "++b) x)
                                               filtrar_tamanho xs nm
                         |otherwise = filtrar_tamanho xs nm
+
+-- exibe a quantidade de cachorros com o tamanho médio informado
+quantidade_tamanho :: IO()
+quantidade_tamanho = do
+                      -- ignora o enter da função anterior
+                      lixo <- getLine
+                      putStr ""
+                      putStr "Digite o tamanho médio: "
+                      tamanho <- getLine
+                      -- faz uma busca no cadastro a origem informada
+                      buscageral filtrar_tamanho_cont tamanho
+
+-- função-parâmetro para encontrar os cadastros do referido tamanho
+filtrar_tamanho_cont :: [[String]] -> String -> IO()
+filtrar_tamanho_cont (x:xs) nm = putStrLn (show (contar_tamanho (x:xs) nm))
+
+-- função auxiliar para contar o tamanho
+contar_tamanho :: [[String]] -> String -> Int
+contar_tamanho [] t = 0
+contar_tamanho (x:xs) t
+                      |(tamanho x) == t = 1 + contar_tamanho xs t
+                      |otherwise = contar_tamanho xs t
