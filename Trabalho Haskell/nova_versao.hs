@@ -59,7 +59,7 @@ f_menu i =
 -- sair do programa
 sair :: Char -> IO()
 sair i
-      |i == 'I' = putStrLn "Saindo do sistema..."
+      |i == 'L' = putStrLn "Saindo do sistema..."
       |otherwise= putStrLn "Opcao invalida..."
 
 -- cadastra um novo cachorro
